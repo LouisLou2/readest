@@ -9,6 +9,7 @@ import {
 import { isWebAppPlatform } from '@/services/environment';
 import { getDailyUsage } from '@/services/translators/utils';
 import { getRuntimeConfig } from '@/services/runtimeConfig';
+import { applyMockSubscriptionPlan } from '@/utils/mockSubscription';
 
 interface Token {
   plan: UserPlan;
@@ -20,7 +21,7 @@ interface Token {
 
 export const getSubscriptionPlan = (token: string): UserPlan => {
   const data = jwtDecode<Token>(token) || {};
-  return data['plan'] || 'free';
+  return applyMockSubscriptionPlan(data['plan'] || 'free');
 };
 
 export const getUserProfilePlan = (token: string): UserPlan => {
@@ -32,7 +33,7 @@ export const getUserProfilePlan = (token: string): UserPlan => {
       plan = 'purchase';
     }
   }
-  return plan;
+  return applyMockSubscriptionPlan(plan);
 };
 
 /**
@@ -209,7 +210,7 @@ export const STORAGE_QUOTA_GRACE_BYTES = 10 * 1024 * 1024; // 10 MB grace
 
 export const getStoragePlanData = (token: string) => {
   const data = jwtDecode<Token>(token) || {};
-  const plan = data['plan'] || 'free';
+  const plan = applyMockSubscriptionPlan(data['plan'] || 'free');
   const usage = data['storage_usage_bytes'] || 0;
   const purchasedQuota = data['storage_purchased_bytes'] || 0;
   const runtimeConfig = getRuntimeConfig();
@@ -255,7 +256,7 @@ export const getTTSQuota = (plan: UserPlan): number => {
 
 export const getTranslationPlanData = (token: string) => {
   const data = jwtDecode<Token>(token) || {};
-  const plan: UserPlan = data['plan'] || 'free';
+  const plan = applyMockSubscriptionPlan(data['plan'] || 'free');
   const usage = getDailyUsage() || 0;
   const quota = getTranslationQuota(plan);
 
@@ -268,7 +269,7 @@ export const getTranslationPlanData = (token: string) => {
 
 export const getDailyTranslationPlanData = (token: string) => {
   const data = jwtDecode<Token>(token) || {};
-  const plan = data['plan'] || 'free';
+  const plan = applyMockSubscriptionPlan(data['plan'] || 'free');
   const quota = getTranslationQuota(plan);
 
   return {
